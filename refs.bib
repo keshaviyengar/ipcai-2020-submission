@@ -1,0 +1,165 @@
+@inproceedings{Grassmann2018,
+abstract = {Recent physics-based models of concentric tube continuum robots are able to describe pose of the tip, given the preformed translation and rotation in joint space of the robot. However, such model-based approaches are associated with high computational load and highly non-linear modeling effort. A data-driven approach for computationally fast estimation of the kinematics without requiring the knowledge and the uncertainties in the physics-based model would be an asset. This paper introduces an approach to solve the forward kinematics as well as the inverse kinematics of concentric tube continuum robots with 6-DOF in three dimensional space SE(3). Two artificial neural networks with ReLU (rectified linear unit) activation functions are designed in order to approximate the respective kinematics. Measured data from a robot prototype are used in order to train, validate, and test the proposed approach. We introduce a representation of the rotatory joints by trigonometric functions that improves the accuracy of the approximation. The results with experimental measurements show higher accuracy for the forward kinematics compared to the state of the art mechanics modeling. The tip error is less then 2.3 mm w.r.t. position (1 {\%} of total robot length) and 1.1 • w.r.t. orientation. The single artificial neural network for the inverse kinematics approximation achieves a translation and rotation actuator error of 4.0 mm and 8.3 • , respectively.},
+author = {Grassmann, Reinhard and Modes, Vincent and Burgner-Kahrs, Jessica},
+booktitle = {IEEE International Conference on Intelligent Robots and Systems},
+doi = {10.1109/IROS.2018.8594451},
+file = {:home/keshav/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Grassmann, Modes, Burgner-Kahrs - 2018 - Learning the Forward and Inverse Kinematics of a 6-DOF Concentric Tube Continuum Robot in SE(3).pdf:pdf},
+isbn = {9781538680940},
+issn = {21530866},
+month = {dec},
+pages = {5125--5132},
+publisher = {Institute of Electrical and Electronics Engineers Inc.},
+title = {{Learning the Forward and Inverse Kinematics of a 6-DOF Concentric Tube Continuum Robot in SE(3)}},
+year = {2018}
+}
+
+@article{Dupont2010,
+abstract = {A novel approach toward construction of robots is based on a concentric combination of precurved elastic tubes. By rotation and extension of the tubes with respect to each other, their curvatures interact elastically to position and orient the robot's tip, as well as to control the robot's shape along its length. In this approach, the flexible tubes comprise both the links and the joints of the robot. Since the actuators attach to the tubes at their proximal ends, the robot itself forms a slender curve that is well suited for minimally invasive medical procedures. This paper demonstrates the potential of this technology. Design principles are presented and a general kinematic model incorporating tube bending and torsion is derived. Experimental demonstration of real-time position control using this model is also described.},
+author = {Dupont, Pierre E. and Lock, Jesse and Itkowitz, Brandon and Butler, Evan},
+doi = {10.1109/TRO.2009.2035740},
+file = {:home/keshav/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Dupont et al. - 2010 - Design and control of concentric-tube robots.pdf:pdf},
+issn = {15523098},
+journal = {IEEE Transactions on Robotics},
+keywords = {Continuum robots,Flexible arms,Kinematics,Medical robots and systems,Telerobotics},
+month = {apr},
+number = {2},
+pages = {209--225},
+title = {{Design and control of concentric-tube robots}},
+volume = {26},
+year = {2010}
+}
+
+@article{Rucker2010,
+abstract = {Continuum robots, which are composed of multiple concentric, precurved elastic tubes, can provide dexterity at diameters equivalent to standard surgical needles. Recent mechanics-based models of these "active cannulas" are able to accurately describe the curve of the robot in free space, given the preformed tube curves and the linear and angular positions of the tube bases. However, in practical applications, where the active cannula must interact with its environment or apply controlled forces, a model that accounts for deformation under external loading is required. In this paper, we apply geometrically exact rod theory to produce a forward kinematic model that accurately describes large deflections due to a general collection of externally applied point and/or distributed wrench loads. This model accommodates arbitrarily many tubes, with each having a general preshaped curve. It also describes the independent torsional deformation of the individual tubes. Experimental results are provided for both point and distributed loads. Average tip error under load was 2.91 mm (1.5{\%}3{\%} of total robot length), which is similar to the accuracy of existing free-space models. {\textcopyright} 2010 IEEE.},
+author = {Rucker, D. Caleb and Jones, Bryan A. and Webster, Robert J.},
+doi = {10.1109/TRO.2010.2062570},
+file = {:home/keshav/Downloads/05559519.pdf:pdf},
+issn = {15523098},
+journal = {IEEE Transactions on Robotics},
+keywords = {Active cannula,Cosserat-rod theory,concentric-tube robot,continuum robot},
+number = {5},
+pages = {769--780},
+title = {{A geometrically exact model for externally loaded concentric-tube continuum robots}},
+volume = {26},
+year = {2010}
+}
+
+@article{Lock2011,
+abstract = {Concentric tube robots are a novel class of continuum robots that are constructed by combining pre-curved elastic tubes such that the overall shape of the robot is a function of the relative rotations and translations of the constituent tubes. Frictionless kinematic and quasistatic force models for this class of robots have been developed that incorporate bending and twisting of the tubes. Experimental evaluation of these models has revealed, however, a directional dependence of tube rotation on robot shape that is not predicted by these models. To explain this behavior, this paper models the contributions of friction arising from two sources: the distributed forces of contact between the tubes along their length and the concentrated bending moments generated at discontinuities in curvature and at the boundaries. It is shown that while friction due to distributed forces is insufficient to explain the experimentally observed tube twisting, a simple model of frictional torque arising from concentrated moments provides a good match with the experimental data. {\textcopyright} 2011 IEEE.},
+author = {Lock, Jesse and Dupont, Pierre E.},
+doi = {10.1109/ICRA.2011.5980347},
+file = {:home/keshav/Downloads/lock2011friction.pdf:pdf},
+isbn = {9781612843865},
+issn = {10504729},
+journal = {Proceedings - IEEE International Conference on Robotics and Automation},
+pages = {1139--1146},
+title = {{Friction modeling in concentric tube robots}},
+year = {2011}
+}
+
+@article{Burgner2014,
+abstract = {Mechanics-based models of concentric tube continuum robots have recently achieved a level of sophistication that makes it possible to begin to apply these robots to a variety of real-world clinical scenarios. Endonasal skull base surgery is one such application, where their small diameter and tentacle-like dexterity are particularly advantageous. In this paper, we provide the medical motivation for an endonasal surgical robot featuring concentric tube manipulators, and describe our model-based design and teleoperation methods, as well as a complete system incorporating image guidance. Experimental demonstrations using a laparoscopic training task, a cadaver reachability study, and a phantom tumor resection experiment illustrate that both novice and expert users can effectively teleoperate the system, and that skull base surgeons can use the robot to achieve their objectives in a realistic surgical scenario. {\textcopyright} 1996-2012 IEEE.},
+author = {Burgner, Jessica and Rucker, D. Caleb and Gilbert, Hunter B. and Swaney, Philip J. and Russell, Paul T. and Weaver, Kyle D. and Webster, Robert J.},
+doi = {10.1109/TMECH.2013.2265804},
+file = {:home/keshav/Downloads/06544204.pdf:pdf},
+issn = {10834435},
+journal = {IEEE/ASME Transactions on Mechatronics},
+keywords = {Active cannula,concentric tube robot,continuum robot,endonasal surgery,minimally-invasive surgery,robot-assisted surgery,teleoperation},
+number = {3},
+pages = {996--1006},
+publisher = {IEEE},
+title = {{A telerobotic system for transnasal surgery}},
+volume = {19},
+year = {2014}
+}
+
+@article{OpenAI2018,
+abstract = {We use reinforcement learning (RL) to learn dexterous in-hand manipulation policies which can perform vision-based object reorientation on a physical Shadow Dexterous Hand. The training is performed in a simulated environment in which we randomize many of the physical properties of the system like friction coefficients and an object's appearance. Our policies transfer to the physical robot despite being trained entirely in simulation. Our method does not rely on any human demonstrations, but many behaviors found in human manipulation emerge naturally, including finger gaiting, multi-finger coordination, and the controlled use of gravity. Our results were obtained using the same distributed RL system that was used to train OpenAI Five. We also include a video of our results: https://youtu.be/jwSbzNHGflM},
+archivePrefix = {arXiv},
+arxivId = {1808.00177},
+author = {OpenAI and Andrychowicz, Marcin and Baker, Bowen and Chociej, Maciek and Jozefowicz, Rafal and McGrew, Bob and Pachocki, Jakub and Petron, Arthur and Plappert, Matthias and Powell, Glenn and Ray, Alex and Schneider, Jonas and Sidor, Szymon and Tobin, Josh and Welinder, Peter and Weng, Lilian and Zaremba, Wojciech},
+eprint = {1808.00177},
+file = {:home/keshav/Downloads/1808.00177.pdf:pdf},
+title = {{Learning Dexterous In-Hand Manipulation}},
+url = {http://arxiv.org/abs/1808.00177},
+year = {2018}
+}
+
+@inproceedings{Bergeles2015,
+author = {Bergeles, C and Lin, F Y and Yang, G Z},
+booktitle = {Hamlyn Symposium on Medical Robotics},
+pages = {13--14},
+title = {{Concentric tube robot kinematics using neural networks}},
+year = {2015}
+}
+
+@inproceedings{Grassmann2019,
+abstract = {This paper investigates the influence of different joint space and orientation representations on the approximation of the forward kinematics. We consider all degrees of freedom in three dimensional space SE(3) and in the robot's joint space Q. In order to approximate the forward kinematics, different shallow artificial neural networks with ReLU (rectified linear unit) activation functions are designed. The amount of weights and bias' of each network are normalized. The results show that quaternion/vector-pairs outperform other SE(3) representations with respect to the approximation capabilities, which is demonstrated with two robot types; a Stanford Arm and a concentric tube continuum robot. For the latter, experimental measurements from a robot prototype are used as well. Regarding measured data, if quaternion/vector-pairs are used, the approximation error with respect to translation and to rotation is found to be seven times and three times more accurate, respectively. By utilizing a four-parameter orientation representation, the position tip error is less than 0.8{\%} with respect to the robot length on measured data showing higher accuracy compared to the state-of-the-art-modeling (1.5{\%}) for concentric tube continuum robots. Other three-parameter representations of SO(3) cannot achieve this, for instance any sets of Euler angles (in the best case 3.5{\%} with respect to the robot length).},
+author = {Grassmann, Reinhard M and Burgner-kahrs, Jessica},
+booktitle = {Robotics: Science and Systems},
+file = {:home/keshav/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Grassmann, Burgner-kahrs - 2019 - On the Merits of Joint Space and Orientation Representations in Learning the Forward Kinematics in SE.pdf:pdf},
+keywords = {Kinematics,Surgical Robotics: Steerable Catheters/Needles},
+mendeley-groups = {IPCAI 2020},
+title = {{On the Merits of Joint Space and Orientation Representations in Learning the Forward Kinematics in SE ( 3 )}},
+year = {2019}
+}
+
+@article{Nair2018,
+abstract = {Exploration in environments with sparse rewards has been a persistent problem in reinforcement learning (RL). Many tasks are natural to specify with a sparse reward, and manually shaping a reward function can result in suboptimal performance. However, finding a non-zero reward is exponentially more difficult with increasing task horizon or action dimensionality. This puts many real-world tasks out of practical reach of RL methods. In this work, we use demonstrations to overcome the exploration problem and successfully learn to perform long-horizon, multi-step robotics tasks with continuous control such as stacking blocks with a robot arm. Our method, which builds on top of Deep Deterministic Policy Gradients and Hindsight Experience Replay, provides an order of magnitude of speedup over RL on simulated robotics tasks. It is simple to implement and makes only the additional assumption that we can collect a small set of demonstrations. Furthermore, our method is able to solve tasks not solvable by either RL or behavior cloning alone, and often ends up outperforming the demonstrator policy.},
+archivePrefix = {arXiv},
+arxivId = {1709.10089},
+author = {Nair, Ashvin and McGrew, Bob and Andrychowicz, Marcin and Zaremba, Wojciech and Abbeel, Pieter},
+doi = {10.1109/ICRA.2018.8463162},
+eprint = {1709.10089},
+file = {:home/keshav/Downloads/08463162.pdf:pdf},
+isbn = {9781538630815},
+issn = {10504729},
+journal = {Proceedings - IEEE International Conference on Robotics and Automation},
+mendeley-groups = {IPCAI 2020},
+pages = {6292--6299},
+publisher = {IEEE},
+title = {{Overcoming Exploration in Reinforcement Learning with Demonstrations}},
+year = {2018}
+}
+
+@article{Lillicrap2015,
+abstract = {We adapt the ideas underlying the success of Deep Q-Learning to the continuous action domain. We present an actor-critic, model-free algorithm based on the deterministic policy gradient that can operate over continuous action spaces. Using the same learning algorithm, network architecture and hyper-parameters, our algorithm robustly solves more than 20 simulated physics tasks, including classic problems such as cartpole swing-up, dexterous manipulation, legged locomotion and car driving. Our algorithm is able to find policies whose performance is competitive with those found by a planning algorithm with full access to the dynamics of the domain and its derivatives. We further demonstrate that for many of the tasks the algorithm can learn policies end-to-end: directly from raw pixel inputs.},
+archivePrefix = {arXiv},
+arxivId = {1509.02971},
+author = {Lillicrap, Timothy P. and Hunt, Jonathan J. and Pritzel, Alexander and Heess, Nicolas and Erez, Tom and Tassa, Yuval and Silver, David and Wierstra, Daan},
+eprint = {1509.02971},
+file = {:home/keshav/Downloads/1509.02971.pdf:pdf},
+mendeley-groups = {IPCAI 2020},
+title = {{Continuous control with deep reinforcement learning}},
+url = {http://arxiv.org/abs/1509.02971},
+year = {2015}
+}
+
+@article{Brockman2016,
+abstract = {OpenAI Gym is a toolkit for reinforcement learning research. It includes a growing collection of benchmark problems that expose a common interface, and a website where people can share their results and compare the performance of algorithms. This whitepaper discusses the components of OpenAI Gym and the design decisions that went into the software.},
+archivePrefix = {arXiv},
+arxivId = {1606.01540},
+author = {Brockman, Greg and Cheung, Vicki and Pettersson, Ludwig and Schneider, Jonas and Schulman, John and Tang, Jie and Zaremba, Wojciech},
+eprint = {1606.01540},
+file = {:home/keshav/Downloads/1606.01540.pdf:pdf},
+mendeley-groups = {IPCAI 2020},
+pages = {1--4},
+title = {{OpenAI Gym}},
+url = {http://arxiv.org/abs/1606.01540},
+year = {2016}
+}
+
+@inproceedings{andrychowicz2017hindsight,
+  title={Hindsight experience replay},
+  author={Andrychowicz, Marcin and Wolski, Filip and Ray, Alex and Schneider, Jonas and Fong, Rachel and Welinder, Peter and McGrew, Bob and Tobin, Josh and Abbeel, OpenAI Pieter and Zaremba, Wojciech},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={5048--5058},
+  year={2017}
+}
+
+@article{plappert2017parameter,
+  title={Parameter space noise for exploration},
+  author={Plappert, Matthias and Houthooft, Rein and Dhariwal, Prafulla and Sidor, Szymon and Chen, Richard Y and Chen, Xi and Asfour, Tamim and Abbeel, Pieter and Andrychowicz, Marcin},
+  journal={arXiv preprint arXiv:1706.01905},
+  year={2017}
+}
