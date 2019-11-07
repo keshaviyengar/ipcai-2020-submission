@@ -52,6 +52,7 @@ grestore
 % insert here the call for the packages your document requires
 %\usepackage{latexsym}
 \usepackage{amsmath}
+\usepackage{subfig}
 
 % etc.
 %
@@ -64,7 +65,7 @@ grestore
 \begin{document}
 
 \title{Investigating exploration for deep reinforcement learning of concentric tube robot control
-\thanks{This work is supported by the Wellcome/EPSRC Centre for Interventional and Surgical Sciences (WEISS) (203145Z/16/Z).}
+\thanks{This work is supported by the Wellcome/EPSRC Centre for Interventional and Surgical Sciences (WEISS) (203145Z/16/Z). The authors acknowledge the use of the UCL Myriad High Throughput Computing Facility (Myriad@UCL), and associated support services, in the completion of this work.}
 }
 
 %\titlerunning{Short form of title}        % if too long for running head
@@ -91,7 +92,7 @@ grestore
 \leavevmode\newline
 \textbf{Purpose} Concentric tube robots are composed of multiple concentric, pre-curved, super-elastic telescopic tubes that are compliant and have a small diameter footprint ideal for minimally invasive surgery. The overall shape can be manipulated by rotating and extending the tubes relative to each other. The interactions between tubes is complex and closed form inverse kinematics are difficult to formulate past trivial tube architectures. A model-free, data driven approach (DDA) such as reinforcement learning would be useful to form the inverse kinematics solution.
 \newline
-\textbf{Method} Reinforcement learning has a key trade-off problem, exploration versus exploitation and balancing this trade-off is an important step in converging to a control policy. To this end, this work investigates various exploration strategies are investigated for deep deterministic policy gradient with hindsight experience replay with a dominant stiffness concentric tube robot simulation environment. The aim of the study is to determine which, if any, exploration strategies are scalable with respect to number of tubes, an indicator of generality.
+\textbf{Method} Reinforcement learning has a key trade-off problem, exploration versus exploitation and balancing this trade-off is an important step in converging to a control policy. To this end, this work investigates various exploration strategies for deep deterministic policy gradient with hindsight experience replay with a dominant stiffness concentric tube robot simulation environment. The aim of the study is to determine which, if any, exploration strategies are scalable with respect to number of tubes, an indicator of generality.
 \newline
 \textbf{Results} The study determines that a zero mean single variate Gaussian noise applied to actions does not explore the workspace in extended joint states. Zero mean multivariate Gaussian of various forms performs much better in exploration of the workspace. Various tube configurations of curvature and relative lengths are tested with the trained model of a given to demonstrate adaptability.
 \newline
@@ -103,7 +104,7 @@ grestore
 \label{intro}
 Minimally invasive surgery (MIS) encompasses are large group of techniques that minimize the incision point size in order to reduce healing time and risk of infection. Robotics incorporated with MIS aids the surgeon with precision, vision and ergonomics where traditional MIS is technically challenging because of disassociation of vision and ergonomic factors like monitor placement and operation table height. In some interventions, like those performed with robotic catheters and endoscopes, the robotic devices used are passive along the length and rely on anatomical structures to guide their movement. Any compliance added to the device to limit contact forces with these structures often has the trade-off of reduced tip stiffness detrimental to certain surgical tasks. A greater risk is relying on anatomical structures for guidance can cause damage to surrounding sensitive healthy tissue. Continuum robots are type of robot that have a large number of degrees of freedom distributed along the length of the the robot allowing for tentacle-like motion, advantageous to avoid sensitive structures in the body. Concentric tube robots are a sub-type of continuum robots that use neighboring tube interactions of bending and twisting when rotated and translated to form curvilinear paths. These paths can avoid anatomical structures, be compliant and still offer some dexterity at the tip.
 \begin{figure}
-  \includegraphics[scale=0.15]{fig1.jpg}
+  \includegraphics[scale=0.15]{images/ctr-collage.jpg}
 \caption{Curvilinear path of two tube concentric tube robot.}
 \label{fig:1}
 \end{figure}
@@ -156,47 +157,14 @@ r =
 
 where $\delta$ is the goal tolerance. The tolerance used in this work is 1 mm. An episode consists of a certain number of timesteps for the agent to interact with the environment, before a reset is initiated or the desired goal has been reached. The reward function is calculated at each timestep and is cumulative through the episode, therefore the agent is incentivized to use the fewest timesteps to the desired goal.
 
-\subsection{Deep deterministic policy gradient and hindsight experience replay}
-The model-free reinforcement learning algorithm chosen is deep deterministic policy gradient (DDPG) with hindsight experience replay (HER). Robotic control is a continuous state and action MDP, limiting the reinforcement learning algorithms compatible. \cite{andrychowicz2017hindsight} has shown successful control DDPG for dexterous and reaching tasks in robotics. The addition of HER adds more successful episodes during training, when without this replay strategy, successful episodes are sparse.
+\paragraph{Policy Learning.} A multi-layer perceptron network (MLP) is used to model the policy network. The network has inputs size that of the environment state dimension and outputs size that of environment action dimension. With a MDP defined, any standard reinforcement learning method can be applied to learn a policy. The chosen method was deep deterministic policy gradient (DDPG) \cite{Lillicrap2015} with hindsight experience replay (HER) \cite{andrychowicz2017hindsight}. The reason we chose this method is two fold. First, because our environment is a continuous state and action problem and require an off-policy method, DDPG was chosen. Second, because successes in training are sparse, HER was chosen to add successful samples by appending saved episode trajectories.
 
-DDPG learns a policy or actor, $\mu(s)$, that predicts an action, $a$, given a state $s$. The technique also uses an action-value function or critic, $Q(s,a)$ which gives an expected utility for a given action when the system is at a particular state. Learning an optimal policy is grounded in using the policy function to output an action, and evaluate the action's utility with the action-value function. DDPG consists of 2 pairs of actor and critic artificial neural networks. The actor network and actor target network have weight parameters $\theta^\mu$ and $\theta^{\mu`}$ and critic network and critic target network have weight parameters $\theta^Q$ and $\theta^{Q`}$. To train off-policy, a replay buffer $R$ of finite size is stored in memory with experiences defined as a tuple $\left(s_t, a_t, r_t, s_{t+1}  \right)$. Iterating over a set number of episodes, the noise process and starting state is initialized. In each episode, there are three main sub-iterations. The first iteration collects samples by executing the exploratory policy through the environment for a given number of timesteps. The next iteration is storing the experiences in the replay buffer with HER. The last iteration is training the actor and critic networks. With $R$ initialized, training starts with sampling a random mini-batch of $N$ transitions $\left(s_i, a_i, r_i, s_{i+1}  \right)$ from $R$. The target at the $i$ sample for the loss function, $y_i$, is defined as
-\begin{equation}
-y_i = r_i + \gamma Q'(s_{i+1}, \mu'(s_{i+1} | \theta^{\mu'}) | \theta^{Q'}). \label{eqn:9}
-\end{equation}
-The loss function, $L$, for the critic network can then be formulated as
-\begin{equation}
-L = \frac{1}{N} \sum_i \left(y_i - Q(s_i, a_i | \theta^Q) \right)^2. \label{eqn:10}
-\end{equation}
-To train the policy network an objective function $J$ to maximize the expected return is defined as
-\begin{equation}
-J(\theta) = E[Q(s,a|\theta^Q|_{s=s_i, a_i = \mu(s_i| \theta^\mu)}]. \label{eqn:12}
-\end{equation}
-Taking the gradient of $J$ with respect to the policy parameters $\theta^\mu$, the update for the actor network is
-
-\begin{equation}
-\nabla_{\theta^\mu}J = \frac{1}{N} \sum_i \nabla_a Q(s,a|\theta^Q) |_{s=s_i,a=(s_i|\theta^\mu)} \nabla_{\theta^\mu} \mu(s|\theta^\mu)|_{s=s_i}. \label{eqn:13}
-\end{equation}
-
-Finally, the target networks are updated with
-\begin{align}
-    \theta^{Q'} &= \tau \theta^Q + (1 - \tau)\theta^{Q'} \\
-    \theta^{Q'} &= \tau \theta^Q + (1 - \tau)\theta^{Q'}.    
-\end{align}
-
-Hindsight experience replay changes the way experiences are stored in the replay buffer. A trajectory with a desired goal is defined as a sequence of experiences in an episode,
-\begin{equation}
-\left( \left(s_0, a_0, r_0, s_1 \right), \left( s_1, a_1, r_1, s_2 \right), \dots, \left( s_{T-1}, a_{T-1}, r_{T-1}, s_T \right) \right).
-\end{equation}
-After each experience is stored in the replay buffer, additional experiences are created by iterating through the trajectory and appending the desired goal in the state. Recall in equation \ref{eqn:5}, the state is the cylindrical representation, achieved goal and desired goal. Specifically in the future HER strategy, iterating through the trajectory of the most recent episode, at each experience, $k$ future achieved goals, $g$, with their states, $s$, are sampled from the current experience till the end of the trajectory. With the future states, the achieved goal, $g$, is substituted as the desired goal, $\hat{g}$. Last, the new reward is calculated and stored in the replay buffer as a new experience.
-
-The benefits of using HER is two fold. The first is in complex environments where successful trajectories are sparse, HER is able to add more successful trajectories and experiences. Second, as shown in [add citation], sparse rewards work better than dense rewards for policy gradient continuous state and action problems by eliminating the need for reward function shaping, a separate topic in reinforcement learning research.
-
-\subsection{Gym Environment}
-The kinematic model is the dominant stiffness model. Each tube is composed of a curved section and a final straight section at the end-effector. With $\alpha$ as the tube rotation relative to the base of the tube, $\kappa$ is the curvature of the tube and $L + \beta$ is the extension length. A transformation representing the curvature for a tube is defined as
+\subsection{Simulation}
+The kinematic model of the concentric tube robot is the dominant stiffness model \cite{Dupont2010}. For tube $i$, rotation, $\alpha_i$, is relative to the base of the tube, $\kappa_i$ is the constant curvature and $L_i + \beta_i$ is the extension length. A transformation representing the curvature for a tube is defined as
 
 \begin{equation}\label{curvature-transformation}
 \begin{aligned}
-^b \textbf{T}_i &=
+\textbf{T}_{curv,i} &=
 \left[\begin{matrix}
   c^2_\alpha (c_{\kappa  \left(L+\beta\right)} - 1) + 1 & s_\alpha c_\alpha (c_{\kappa  \left(L+\beta\right)} - 1) \\
   s_\alpha c_\alpha (c_{\kappa  \left(L+\beta\right)} - 1) & c^2_\alpha (1 - c_{\kappa  \left(L+\beta\right)}) + c_{\kappa  \left(L+\beta\right)} \\
@@ -212,52 +180,63 @@ The kinematic model is the dominant stiffness model. Each tube is composed of a 
 \end{matrix}\right],
 \end{aligned}
 \end{equation}
-The straight section at the end-effector of the robot is a translation from the last tube with a length $l_{tip}$.
+For the end effector of a robot of $n$ tubes, the forward kinematics can be defined as
 \begin{equation}
-\label{straight-ee}
-^n \textbf{T}_{ee} =
-\left[\begin{matrix}
-1 & 0 & 0 & 0 \\
-0 & 1 & 0 & 0 \\
-0 & 0 & 1 & l_{tip} \\
-0 & 0 & 0 & 1 \\
-\end{matrix}\right].
-\end{equation}
-For a single tube robot, the forward kinematics transform is
-\begin{equation}
-^b \textbf{T}_{ee} = ^b \textbf{T}_1 ^1 \textbf{T}_{ee}
-\end{equation}
-For a two tube robot, the curvature transform of the second tube is added.
-\begin{equation}
-^b \textbf{T}_{ee} = ^b \textbf{T}_1 ^1 \textbf{T}_2  ^2 \textbf{T}_{ee}
+\textbf{T}_{ee} = \prod^{n}_{i} \textbf{T}_{curv,i}
 \end{equation}
 
-To follow the standardization of reinforcement learning environments started by openAI gym, the one, two, three and four tube environments has been formulated as a openAI gym environment \cite{Brockman2016}. The main components are the reset, step and reward functions.
-
-\paragraph{reset} The reset function resets the environment to begin a new episode and returns a first observation. A desired goal is determined by sampling from a uniform distribution of the joint states, and performing forward kinematics. The first episode has a specified initial joint position set to fully extended. Episodes after the first have the starting position of where the previous episode left off.
-
-\paragraph{step} The step function performs a single timestep iteration of the environment given an action. The action is clipped to be within specified bounds. The action is added to the current joints of the robot and clipped and constrained by equation \ref{eqn:3} and \ref{eqn:4}. Appending the cylindrical form, achieved goal and desired goal, the state is formed. With the state, the reward can be computed. The environment has two termination conditions, if the Cartesian error $e$ is under the tolerance $\delta$ or the maximum number of time steps has been reached. If the environment has terminated, the reset function is called. The function returns, the new state, reward and terminal condition. 
-
-\paragraph{reward} The reward function computes the reward at the current state. With the achieved and desired goal Cartesian points, equation is used to determine the error $e$. If the error is below the tolerance $\delta$, the reward is $0$. Otherwise the reward is $-1$. The function is defined in equation \ref{eqn:8}.
+\paragraph{Desired goal sampling.} When sampling desired goals from simulation for reinforcement learning, the Cartesian space sampling is not uniform. The desired goals are chosen to be achievable goals by the robot, and therefore, must satisfy the constraints found in equation \ref{eqn:3} and \ref{eqn:4}. Because there are no such constraints on $\alpha$, rotation sampling is uniform. For $\beta$, the extensions must satisfy conditions and all though initially sampled uniformly, once constraints are considered there is a bias in Cartesian desired goal points.
+\begin{figure}%
+    \centering
+    \subfloat[3 tube robot]{{\includegraphics[width=5cm]{images/3-tube-x-y-z.png}}}%
+    \qquad
+    \subfloat[4 tube robot]{{\includegraphics[width=5cm]{images/4-tube-x-y-z.png}}}%
+    \caption{2 Figures side by side}%
+    \label{fig:example}%
+\end{figure}
 
 \subsection{Exploration}
 There are three main exploration techniques found in model-free reinforcement learning. All three techniques add a noise to the action during training.
 
-\paragraph{Zero-mean univariate and multivariate Gaussian noise}
-Given a standard deviation, each action during training is perturbed by sampling a value from a zero-mean Gaussian distribution and adding it to the selected action.
-
-\paragraph{Ornstein Uhlenbeck noise}
-Ornstein-Uhlenbeck noise process was the original noise process in the DDPG paper. The noise is time dependant allowing to set a long-term mean $\mu$. The process moves towards $\mu$ with a given standard deviation $\sigma$ at a rate $\theta$ and current value $x_t$.
+\paragraph{Zero-mean multivariate Gaussian noise}
+Given a standard deviation, each action during training is perturbed by sampling a value from a zero-mean Gaussian distribution and arithmetically adding it to the selected action by the policy.
 \begin{equation}
-dx_t = \theta \left( \mu - x_t \right) d_t + \sigma d W_t
+    a = \mu(s) + \mathcal{N} (0, \sigma^2 I)
 \end{equation}
-
+\begin{equation}
+    a = \mu(s) + \mathcal{N} (\Vec{0}, \Sigma)
+\end{equation}
+With a single standard deviation multivariate Gaussian, a single standard deviation value is used to perturb action states of both extension and rotation. However, with extension and rotation having different units, it is a non-ideal noise process. With a multiple standard deviation multivariate Gaussian, each action index can have an independent standard deviation. Extension joints and rotation joints can have independent standard deviations, furthermore, different tubes can have different extension standard deviations to push for tube extension in inner tubes.
+\paragraph{Ornstein Uhlenbeck noise}
+Ornstein-Uhlenbeck (OU) noise process was the original noise process in the DDPG work  \cite{Lillicrap2015}. The noise is temporally correlated allowing to set a long-term mean $\mu$. The process moves towards $\mu$ with a given standard deviation $\sigma$ at a rate $\theta$ and current value $x_t$ over timesteps of the episode and is reset with an episode termination.
+\begin{equation}
+    a = \mu(s) + OU \left( \Vec{x_{t}}, \theta, \Vec{\mu}, \Sigma \right)
+\end{equation}
 \paragraph{Parameter noise}
 Parameter noise adds noise directly to the policy network weights during training for exploration \cite{plappert2017parameter}. Zero mean multivariate Gaussian distribution of size equal to the parameter vector of the policy network is sampled and used to perturb the policy weights directly.
+\begin{equation}
+    a = \mu(s | \theta^{\mu} + \mathcal{N} (\Vec{0}, \sigma^2 I)) 
+\end{equation}
+Adding noise directly to the agent's parameters allows for more consistent exploration across timesteps, whereas exploration added to actions leads to unpredictable exploration which is not correlated to the agent's parameters \cite{plappert2017parameter}.
 
-The study proposed is to investigate these exploration strategies in terms of accuracy and scalability with respect to number of tubes. To this end the proposed method of investigation is the following. With the 2 tube environment, a hyper-parameter search will be done for a exploration parameter, different to each strategy except for Ornstein-Uhlenbeck. Ornstein-Uhlenbeck will have a long-term mean of extension with an appropriate rate to last an episode with a standard deviation from the Gaussian approach. Once this parameter is found, training is done for 2,3 and 4 tube environments. Comparisons of accuracy, error and success during training can be done. Lastly, a measure of online adaptability will be done. With the 4-tube environment, if the tube parameters are changed dramatically, how long does it take for the exploration strategy to re-learn the correct policy.
+The study proposed is to investigate these exploration strategies in terms of accuracy and scalability with respect to number of tubes. The proposed method of investigation is the following. First, for base hyperparameter values of DDPG and HER, a search is performed for in a single tube environment. The base hyperparameters are extended two tubes, three tubes and four tubes. Next a hyperparameter search for only the standard deviation of a multivariate Gaussian of the final tube extension index is performed for two tubes. This result is used for three and four tubes. Next, a hyperparameter search is done for a parameter noise standard deviation for the two tube environment with the result applied to three and four tube training. 
 
-\section{Testing and Results}
+\subsection{Computing Hardware}
+For training, a server cluster with Intel Xeon Gold 6140 18C 140W 2.3GHz was used with 19 parallel workers created as described in \cite{OpenAI2018}. With independent workers, exploration improves.
+
+\section{Experiments}
+
+\section{Results}
+To find base hyperparameters for DDPG and HER, a hyperparameter search was performed on a one tube robot. The search was with a random sampler and median pruner with 1000 trials and 20000 episodes per trial for approximately 2 million steps in total. The cost function was negative mean cumulative reward per episode. The resulting hyperparameters values had a cost of 50.6 and can be found in table \ref{tab:2}.
+
+To test scalability, the base hyperparameters are applied to 2,3 and 4 tube environments. The success rate is quite low for all environments and visualizing the point clouds of the achieved goals used in training shows a bias to retraction.
+\begin{itemize}
+    \item Show data of 0.35 Gaussian noise in a cool way
+\end{itemize}
+To test if independent standard deviations of rotation and extension would improve accuracy and exploration, a hyperparameter search was done for rotation and extension standard deviations of a 2 tube environment. Similar to the base hyperparameter search, 1000 trials and 20000 episodes per trial with a random sampler and median pruner were selected and a value of 0.025 for rotation and 0.00065 for extension with a cost of 60.2. The resulting trained model of a two tube environment had much a higher success rate and lower errors. The point clouds also show increased exploration with achieved goal points further out in extension of the tubes.
+\begin{itemize}
+    \item Show data of 0.025, 0.00065 Gaussian noise in a cool way
+\end{itemize}
 % For tables use
 \begin{table}
 % table caption is above the table
@@ -291,13 +270,12 @@ actor and critic network & Actor and critic network architecture.\\
 \begin{table}
 % table caption is above the table
 \caption{Static hyperparameters}
-\label{tab:1} 
+\label{tab:2} 
 % For LaTeX tables use
 \begin{tabular}{lllll}
 \hline\noalign{\smallskip}
 Hyperparameter  & Tube 1 \\
 \noalign{\smallskip}\hline\noalign{\smallskip}
-timesteps & 2e6 \\
 sampled\_goals & 4 \\
 buffer\_size & 10000 \\
 batch\_size & 256 \\
@@ -318,7 +296,7 @@ actor and critic network & [128, 128, 128] \\
 \begin{table}
 % table caption is above the table
 \caption{Concentric tube robot environment parameter description}
-\label{tab:2}       % Give a unique label
+\label{tab:3}       % Give a unique label
 % For LaTeX tables use
 \begin{tabular}{lll}
 \hline\noalign{\smallskip}
@@ -340,7 +318,7 @@ goal\_tolerance & Tolerance to desired goal for a successful episode. & m \\
 \begin{table}
 % table caption is above the table
 \caption{Concentric tube robot environment parameters}
-\label{tab:2}       % Give a unique label
+\label{tab:4}       % Give a unique label
 % For LaTeX tables use
 \begin{tabular}{lllll}
 \hline\noalign{\smallskip}
@@ -359,7 +337,6 @@ goal\_tolerance & 0.001 & 0.001 & 0.001 & 0.001\\
 \noalign{\smallskip}\hline
 \end{tabular}
 \end{table}
-
 
 \begin{itemize}
     \item Show table of static hyperparameters
