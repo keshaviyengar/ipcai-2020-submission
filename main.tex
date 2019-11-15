@@ -65,7 +65,7 @@ grestore
 \begin{document}
 
 \title{Investigating exploration for deep reinforcement learning of concentric tube robot control
-\thanks{This work is supported by the Wellcome/EPSRC Centre for Interventional and Surgical Sciences (WEISS) (203145Z/16/Z). The authors acknowledge the use of the UCL Myriad High Throughput Computing Facility (Myriad@UCL), and associated support services, in the completion of this work.}
+\thanks{This work was supported by the Wellcome/EPSRC Centre for Interventional and Surgical Sciences (WEISS) at UCL (203145Z/16/Z), EPSRC (EP/P027938/1, EP/R004080/1) and the H2020 FET (GA 863146). Danail Stoyanov is supported by a Royal Academy of Engineering Chair in Emerging Technologies (CiET1819\textbackslash2\textbackslash 36) and an EPSRC Early Career Research Fellowship (EP/P012841/1). The authors acknowledge the use of the UCL Myriad High Throughput Computing Facility (Myriad@UCL), and associated support services, in the completion of this work.}
 }
 
 %\titlerunning{Short form of title}        % if too long for running head
@@ -102,53 +102,55 @@ grestore
 
 \section{Introduction}
 \label{intro}
-Minimally invasive surgery (MIS) encompasses are large group of techniques that minimize the incision point size in order to reduce healing time and risk of infection. Robotics incorporated with MIS aids the surgeon with precision, vision and ergonomics where traditional MIS is technically challenging because of disassociation of vision and ergonomic factors like monitor placement and operation table height. In some interventions, like those performed with robotic catheters and endoscopes, the robotic devices used are passive along the length and rely on anatomical structures to guide their movement. Any compliance added to the device to limit contact forces with these structures often has the trade-off of reduced tip stiffness detrimental to certain surgical tasks. A greater risk is relying on anatomical structures for guidance can cause damage to surrounding sensitive healthy tissue. Continuum robots are type of robot that have a large number of degrees of freedom distributed along the length of the the robot allowing for tentacle-like motion, advantageous to avoid sensitive structures in the body. Concentric tube robots are a sub-type of continuum robots that use neighboring tube interactions of bending and twisting when rotated and translated to form curvilinear paths. These paths can avoid anatomical structures, be compliant and still offer some dexterity at the tip.
+Minimally invasive surgery (MIS) encompasses are large group of techniques that minimize the incision point size in order to reduce healing time and risk of infection. Robotics incorporated with MIS aids the surgeon with precision, vision and ergonomics where traditional MIS is technically challenging because of disassociation of vision and ergonomic factors like monitor placement and operation table height. In some interventions, like those performed with robotic catheters and endoscopes, the robotic devices used are passive along the length and rely on anatomical structures to guide their movement. Any compliance added to the device to limit contact forces with these structures often has the trade-off of reduced tip stiffness detrimental to certain surgical tasks. A greater risk is relying on anatomical structures for guidance can cause damage to surrounding sensitive healthy tissue. Continuum robots are type of robot that have a large number of degrees of freedom distributed along the length of the the robot allowing for tentacle-like motion, advantageous to avoid sensitive structures in the body. Concentric tube robots are a sub-type of continuum robots that use neighboring tube interactions of bending and twisting when rotated and translated to form curvilinear paths as shown in figure \ref{fig:curvilinear-paths}. These paths can avoid anatomical structures, be compliant and still offer some dexterity at the tip.
 \begin{figure}
-  \includegraphics[scale=0.15]{images/ctr-collage.jpg}
+  \includegraphics[width=\linewidth]{images/ctr-collage.jpg}
 \caption{Curvilinear path of two tube concentric tube robot.}
-\label{fig:1}
+\label{fig:curvilinear-paths}
 \end{figure}
-Common modelling approaches of concentric tube robots are based on special Coserat rods for each tube undergoing bending and torsion that lead to no analytical solution for robots consisting of two tubes or more or for pre-curvature that varies with length \cite{Dupont2010}, \cite{Rucker2010}. Additional factors like friction and tube tolerances have have been investigated \cite{Lock2011} but are difficult to integrate because of the large computational load for modelling efforts. Inverse kinematics strategies applied are common approaches like numerical root finding \cite{Burgner2014} or differential inverse kinematics \cite{Dupont2010}. These strategies are slow and do not guarantee convergence with Coserat rod modelling. A model-free data driven approach (DDA) would be beneficial because of accuracy in real scenarios compared to current model-based inverse kinematics strategies. Furthermore, unlike neural network approaches that have been proposed \cite{Grassmann2018}, reinforcement learning can be trained in successively complex environments and eventually to a real environment by combining training parameters as shown in the Sim2Real \cite{OpenAI2018}. Reinforcement learning is then data efficient, if the cost of collecting real life data is high.
+
+Common modelling approaches of concentric tube robots are based on special Coserat rods for each tube undergoing bending and torsion that lead to no analytical solution for robots consisting of two tubes or more or for pre-curvature that varies with length \cite{Dupont2010}, \cite{Rucker2010}. Additional factors like friction and tube tolerances have have been investigated \cite{Lock2011} but are difficult to integrate because of the large computational load for modelling efforts. Inverse kinematics strategies applied are common approaches like numerical root finding \cite{Burgner2014} or differential inverse kinematics \cite{Dupont2010}. These strategies are slow and do not guarantee convergence with Coserat rod modelling. 
+A model-free data driven approach (DDA) would be beneficial because of accuracy in real scenarios compared to current model-based inverse kinematics strategies. Furthermore, unlike neural network approaches that have been proposed \cite{Grassmann2018}, reinforcement learning can be trained in successively complex environments and eventually to a real environment by combining training parameters as shown in the Sim2Real \cite{OpenAI2018}. Reinforcement learning is then data efficient, if the cost of collecting real life data is high.
 \section{Prior work and preliminaries}
 \label{prelims}
 To our knowledge there have been no previous work using reinforcement learning for concentric tube robots. However, two DDA approaches have been proposed. The first approach \cite{Bergeles2015} uses simulated data to train a multi-layer perceptron (MLP) network for inverse kinematics of a 3 tube robot with one variable curvature section. The rotation configuration space is split into four quadrants resulting in an output of a single extension joint value per tube and 4 rotation joint values per tube. The correct joint tuple is selected by examining the least forward kinematics tip error. To avoid bias during training, extension values less than 30\% of the maximum extension value are ignored. The simulation accuracy results demonstrate Cartesian error is below 0.8mm running at 50 Hz in Matlab. The second approach \cite{Grassmann2018} also uses an MLP framework for inverse kinematics and focuses on hardware with a contribution with a novel joint space representation. The representation follows trigonometric joint representation used in other work with adaptions for concentric tube robots. The work defines a cylindrical form $\gamma_i$, with $i=0$ being the innermost tube and $i=n$ being the outermost tube,
 \begin{equation}
-\gamma_i = \{ \gamma_{1,i}, \gamma_{2,i}, \gamma_{3,i} \} = \{ \cos(\alpha_i), \sin(\alpha_i), \beta_i \},\label{eqn:1}
+\gamma_i = \{ \gamma_{1,i}, \gamma_{2,i}, \gamma_{3,i} \} = \{ \cos(\alpha_i), \sin(\alpha_i), \beta_i \},\label{eqn:cylindrical-representation}
 \end{equation}
 which describes the $i$ tube as a triplet. The rotatory joint $\alpha_i$ can be retrieved by
 \begin{equation}
-\alpha_i = \textnormal{atan2} \{ \gamma_{2,i}, \gamma_{1,i} \}. \label{eqn:2}
+\alpha_i = \textnormal{atan2} \{ \gamma_{2,i}, \gamma_{1,i} \}. \label{eqn:alpha}
 \end{equation}
 The extension joint $\beta_i$ can be retrieved directly and has constraints
 \begin{align}
-0 \geq \beta_n \geq & \dots \geq \beta_2 \geq \beta_1, \label{eqn:3} \\
-0 \leq L_n + \beta_n \leq & \dots \leq L_2 + \beta_2 \leq L_1 + \beta_1, \label{eqn:4}
+0 \geq \beta_n \geq & \dots \geq \beta_2 \geq \beta_1, \label{eqn:beta-constraints} \\
+0 \leq L_n + \beta_n \leq & \dots \leq L_2 + \beta_2 \leq L_1 + \beta_1, \label{eqn:extension-constraints}
 \end{align}
 where $n$ is the number of tubes. Another study \cite{Grassmann2019}, investigating various joint space representations confirmed that the cylindrical representation performs much better for MLP frameworks as compared a simple rotation and extension form. Hardware training and evaluation was done with a 3 tube concentric tube robot, the actuation error was $4.0$mm in translation and $8.3 ^{\circ}$ with 60,000 training samples. The cylindrical form, extension constraints and order of tube indexing is directly used as the joint representation for the reinforcement learning strategy applied in this work.
 
 \begin{figure}
-  \includegraphics[scale=0.4]{images/2-Figure2-1.png}
+  \includegraphics[width=\linewidth]{images/2-Figure2-1.png}
 \caption{3 tube illustration in a single plane. \cite{Grassmann2018}}
-\label{fig:1}
+\label{fig:constraints}
 \end{figure}
 
 A major challenge of model-free reinforcement learning in continuous state and action spaces is exploration \cite{Nair2018}. An advantage of using an off-policy algorithm like deep deterministic policy gradient is the learned policy does not have to be the one used for training. In the first continuous control work \cite{Lillicrap2015}, Ornstein-Uhlenbeck was the noise process used for continuous problems but alternatives strategies have been found. The three main exploration methods are applied to model-free reinforcement learning are studied and results presented in this work. The exploration methods are Gaussian noise process, Ornstein-Uhlenbeck noise process and parameter noise. Applying the same exploration to different number of tubes is an indication that the policy can be generalized. Therefore, a focus is placed on finding exploration parameters that work from two to four tube dominant stiffness concentric tube robots.
 \section{Methods}
 Following the standard paradigm of reinforcement learning the inverse kinematics problem is formulated as a Markov Decision Process (MDP). The action, state and reward of the MDP model is detailed as follows.
-
-\paragraph{State.} The state is a combination the cylindrical representation defined in equation \ref{eqn:1}, the current Cartesian end-effector position $g$ and the desired Cartesian end-effector position $\hat{g}$,
+\subsection{MDP Formulation}
+\paragraph{State.} The state is a combination the cylindrical representation defined in equation \ref{eqn:cylindrical-representation}, the current Cartesian end-effector position $g$ and the desired Cartesian end-effector position $\hat{g}$,
 \begin{equation}
-s = \left( \gamma_1, \gamma_2, \dots, \gamma_n, g, \hat{g} \right). \label{eqn:5}
+s = \left( \gamma_1, \gamma_2, \dots, \gamma_n, g, \hat{g} \right). \label{eqn:state}
 \end{equation}
 
 \paragraph{Action.} The action is a change in extension and rotation at one timestep with separate limits for rotation and extension. In DDPG, the agent can select any value in the continuous range in the limit interval.
 \begin{equation}
-a = \left( \Delta \alpha_1, \Delta \beta_1, \Delta \alpha_2, \Delta \beta_2,  \dots, \Delta \alpha_n, \Delta \beta_n \right). \label{eqn:6}
+a = \left( \Delta \alpha_1, \Delta \beta_1, \Delta \alpha_2, \Delta \beta_2,  \dots, \Delta \alpha_n, \Delta \beta_n \right). \label{eqn:action-definition}
 \end{equation}
 
 \paragraph{Reward.} The reward is the scalar value returned by the environment as feedback to the agent from the chosen action at the current timestep. In \cite{andrychowicz2017hindsight} described how sparse rewards are more effective than dense rewards when using hindsight experience replay for continuous action environment. Moreover, dense rewards are difficult to shape to push the agent towards a desired behaviour. The error is
 \begin{equation}
-e = \sqrt{(g_x - \hat{g}_x)^2 + (g_y - \hat{g}_y)^2 + (g_z - \hat{g}_z)^2}. \label{eqn:7}
+e = \sqrt{(g_x - \hat{g}_x)^2 + (g_y - \hat{g}_y)^2 + (g_z - \hat{g}_z)^2}. \label{eqn:error}
 \end{equation}
 
 The reward function can then be defined as
@@ -159,7 +161,7 @@ r =
       \hphantom{-}0, \quad e \leq \delta \\
       -1, \quad \textnormal{otherwise},
     \end{array}
-  \right. \label{eqn:8}
+  \right. \label{eqn:reward}
 \end{equation}
 
 where $\delta$ is the goal tolerance. The tolerance used in this work is 1 mm. An episode consists of a certain number of timesteps for the agent to interact with the environment, before a reset is initiated or the desired goal has been reached. The reward function is calculated at each timestep and is cumulative through the episode, therefore the agent is incentivized to use the fewest timesteps to the desired goal.
@@ -169,7 +171,7 @@ where $\delta$ is the goal tolerance. The tolerance used in this work is 1 mm. A
 \subsection{Simulation}
 The kinematic model of the concentric tube robot is the dominant stiffness model \cite{Dupont2010}. For tube $i$, rotation, $\alpha_i$, is relative to the base of the tube, $\kappa_i$ is the constant curvature and $L_i + \beta_i$ is the extension length. A transformation representing the curvature for a tube is defined as
 
-\begin{equation}\label{curvature-transformation}
+\begin{equation}\label{eqn:curvature-transformation}
 \begin{aligned}
 \textbf{T}_{curv,i} &=
 \left[\begin{matrix}
@@ -189,29 +191,27 @@ The kinematic model of the concentric tube robot is the dominant stiffness model
 \end{equation}
 For the end effector of a robot of $n$ tubes, the forward kinematics can be defined as
 \begin{equation}
-\textbf{T}_{ee} = \prod^{n}_{i} \textbf{T}_{curv,i}
+\textbf{T}_{ee} = \prod^{n}_{i} \textbf{T}_{curv,i} \label{eqn:end-effector-transformation}
 \end{equation}
 
-\paragraph{Desired goal sampling.} When sampling desired goals from simulation for reinforcement learning, the Cartesian space sampling is not uniform. The desired goals are chosen to be achievable goals by the robot, and therefore, must satisfy the constraints found in equation \ref{eqn:3} and \ref{eqn:4}. Because there are no such constraints on $\alpha$, rotation sampling is uniform. For $\beta$, the extensions must satisfy conditions and with constraints there is a bias in Cartesian desired goal points as shown in figure \ref{fig:2}. To reduce the end effector position stagnating in the biased area, the joint values of the robot are not resampled at the end of the episode, only the desired goal is re-sampled.
+\paragraph{Desired goal sampling.} When sampling desired goals from simulation for reinforcement learning, the Cartesian space sampling is not uniform. The desired goals are chosen to be achievable goals by the robot, and therefore, must satisfy the constraints found in equation \ref{eqn:beta-constraints} and \ref{eqn:extension-constraints}. Because there are no such constraints on $\alpha$, rotation sampling is uniform. For $\beta$, the extensions must satisfy conditions and with constraints there is a bias in Cartesian desired goal points as shown in figure \ref{fig:cartesian-sampling}. To reduce the end effector position stagnating in the biased area, the joint values of the robot are not re-sampled at the end of the episode, only the desired goal is re-sampled.
 
-\paragraph{Environment and workspace.} The tube parameters found in table \ref{tab:1} define curvatures and overall lengths of each tube. With these parameters, and the transform in equation \ref{curvature-transformation}, the entire workspace of each tube configuration is defined. Figure illustrates the 2,3 and 4 relative tube lengths and curvatures and the general workspace.
+\paragraph{Environment and workspace.} The tube parameters found in table \ref{tab:tube-env-params} define curvatures and overall lengths of each tube. With these parameters, and the transform in equation \ref{eqn:curvature-transformation}, the entire workspace of each tube configuration is defined. Figure illustrates the 2,3 and 4 relative tube lengths and curvatures and the general workspace.
 
 \begin{figure}
-    \subfloat[2 tube]{{\includegraphics[width=5cm]{images/2-tube-workspace.png}}}
-    \subfloat[3 tube]{{\includegraphics[width=5cm]{images/3-tube-workspace.png}}}
-    
-    \subfloat[4 tube]{{\includegraphics[width=5cm]{images/4-tube-workspace.png}}}
+    \subfloat[2 tube]{{\includegraphics[width=0.33\linewidth]{images/2-tube-workspace.png}}}
+    \subfloat[3 tube]{{\includegraphics[width=0.33\linewidth]{images/3-tube-workspace.png}}}
+    \subfloat[4 tube]{{\includegraphics[width=0.33\linewidth]{images/4-tube-workspace.png}}}
     \caption{Illustration of robot in full extension with tube rotations 0$^{\circ}$ and 180$^{\circ}$.}
     \label{fig:workspace}
 \end{figure}
 
 \begin{figure}
-    \subfloat[2 tube Cartesian sampling]{{\includegraphics[width=5cm]{images/2-tube-x-y-z.png}}}
-    \subfloat[3 tube Cartesian sampling]{{\includegraphics[width=5cm]{images/3-tube-x-y-z.png}}}
-    
-    \subfloat[4 tube Cartesian sampling]{{\includegraphics[width=5cm]{images/4-tube-x-y-z.png}}}
+    \subfloat[2 tube Cartesian sampling]{{\includegraphics[width=0.33\linewidth]{images/2-tube-x-y-z.png}}}
+    \subfloat[3 tube Cartesian sampling]{{\includegraphics[width=0.33\linewidth]{images/3-tube-x-y-z.png}}}
+    \subfloat[4 tube Cartesian sampling]{{\includegraphics[width=0.33\linewidth]{images/4-tube-x-y-z.png}}}
     \caption{10,000 Cartesian sampling distribution}
-    \label{fig:2}%
+    \label{fig:cartesian-sampling}%
 \end{figure}
 
 \begin{table}
@@ -224,7 +224,7 @@ Overall length & $L$ & mm & 150 & 100 & 70 & 20\\
 \noalign{\smallskip}\hline
 \end{tabular}
 \caption{Concentric tube robot environment parameters}
-\label{tube-env-params}
+\label{tab:tube-env-params}
 \end{table}
 
 \subsection{Exploration}
@@ -233,28 +233,14 @@ The learned policy, $\mu(s_t | \theta)$, is the MLP network with weights $\theta
 \paragraph{Zero-mean multivariate Gaussian noise.}
 Given a standard deviation, each action during training is perturbed by sampling a value from a zero-mean Gaussian distribution and arithmetically adding it to the selected action by the policy.
 \begin{equation}
-    a_t = \mu(s_t | \theta^\mu) + \mathcal{N} (\Vec{0}, \Vec{\Sigma})
+    a_t = \mu(s_t | \theta^\mu) + \mathcal{N} (\Vec{0}, \Vec{\Sigma}) \label{eqn:action-multivariate-gaussian}
 \end{equation}
-Often a single standard deviation multivariate Gaussian, such that $\Vec{\Sigma = \sigma^2 \Vec{I}}$.  With a multiple standard deviation multivariate Gaussian, each action index can have an independent standard deviation. For concentric tube robots, extension and rotation joints are of different units therefore independent standard deviations in the diagonal co-variance matrix are required. This covariance matrix, $\Vec{\Sigma}$ is defined as
-\begin{equation}\label{covariance-matrix}
-\begin{aligned}
-\Vec{\Sigma} =
-\left [
-\begin{matrix}
-\sigma_{\alpha} & & & \\
-& \sigma_{\beta} & & \\
-& & \ddots & \\
-& & & \sigma_{\alpha} &\\
-& & & & \sigma_{\beta}\\
-\end{matrix}
-\right ]
-\end{aligned}
-\end{equation}
+Often a single standard deviation multivariate Gaussian, such that $\Vec{\Sigma = \sigma^2 \Vec{I}}$.  With a multiple standard deviation multivariate Gaussian, each action index can have an independent standard deviation. For concentric tube robots, extension and rotation joints are of different units therefore independent standard deviations in the diagonal co-variance matrix are required. This co-variance matrix is a diagnal matrix with $\sigma_\alpha$ and $\sigma_\beta$ in the index associated with rotation or extension.
 
 \paragraph{Ornstein Uhlenbeck noise}
 Ornstein-Uhlenbeck (OU) noise process was the original noise process in the DDPG work  \cite{Lillicrap2015}. The noise is temporally correlated allowing to set a long-term mean $\mu$. The process moves towards $\mu$ with a given standard deviation $\sigma$ at a rate $\theta$ and current value $x_t$ over timesteps of the episode and is reset with an episode termination.
 \begin{equation}
-    a_t = \mu(s_t | \theta^\mu) + OU \left( \Vec{x_{t}}, \theta, \Vec{\mu}, \Vec{\Sigma} \right)
+    a_t = \mu(s_t | \theta^\mu) + OU \left( \Vec{x_{t}}, \theta, \Vec{\mu}, \Vec{\Sigma} \right) \label{eqn:action-ou}
 \end{equation}
 We choose to keep rotation noise zero-mean Gaussian, done by setting the initial and long term mean o zero. The standard deviation for rotation noise is the same as for multivariate Gaussian. For extension, we choose to push actions towards extension by setting the initial mean to zero and long term mean to the minimum extension action, as small $\beta$ results in extension. We found $\theta=0.3$ to be appropriate for the length of episode in the environments.
 \begin{equation}
@@ -269,36 +255,36 @@ min(\Delta \beta_0) \\
 min(\Delta \beta_n) \\
 \end{matrix}
 \right ]
-\end{aligned}
+\end{aligned} \label{eqn:mean-ou}
 \end{equation}
-The co-variance matrix is similar to equation \ref{eqn:12}, but a different $\sigma_\beta$.
+The co-variance matrix is similar to equation \ref{eqn:covariance-matrix}, but a different $\sigma_\beta$.
 
 \paragraph{Parameter noise}
 Parameter noise adds noise directly to the policy network weights during training for exploration \cite{plappert2017parameter}. Zero mean multivariate Gaussian distribution of size equal to the parameter vector of the policy network is sampled and used to perturb the policy weights directly.
 \begin{equation}
-    a = \mu(s | \theta^{\mu} + \mathcal{N} (\Vec{0}, \Vec{\sigma^2 I})) 
+    a = \mu(s | \theta^{\mu} + \mathcal{N} (\Vec{0}, \Vec{\sigma^2 I})) \label{eqn:action-param-noise}
 \end{equation}
 Adding noise directly to the agent's parameters allows for more consistent exploration across timesteps, whereas exploration added to actions leads to unpredictable exploration which is not correlated to the agent's parameters \cite{plappert2017parameter}.
 
 The study proposed is to investigate these exploration strategies in terms of accuracy and scalability with respect to number of tubes. The method of investigation is the following. Each individual noise type has a parameter or set of parameters that can be optimized with a hyperparameter search. Each noise type will be optimized with a 1000 trial, 20,000 episode hyperparameter search in a two tube environment with a median pruner and random sampler optimizing a selected parameter or parameters. With the resulting noise type and selected parameters, the noise type will be extended to three and four tube environments for training. During training, validation is performed at incremental periods with the learned policy. Validation is performed by running 100 evaluation episodes and testing the agent's ability to reach the sampled desired goal. Mean and standard devation of the error and a success rate measure is collected. We define success rate as the number of successful episodes during validation out of the 100 evaluation episodes.
 
-To determine base hyperparameters of DDPG and HER, a full search was done with the same 1000 trials and 20,000 episodes, median pruner and random sampler as the study. We chose to run the search on the simplest model, a one tube environment because of the large number of hyperparameters to optimize. The hyperparameters are found in table \ref{base-hyperparams}. Except for noise type and noise standard deviation, which are the main variables in the study, all others remain constant through experiments.
+To determine base hyperparameters of DDPG and HER, a full search was done with the same 1000 trials and 20,000 episodes, median pruner and random sampler as the study. We chose to run the search on the simplest model, a one tube environment because of the large number of hyperparameters to optimize. The hyperparameters are found in table \ref{tab:base-hyperparams}. Except for noise type and noise standard deviation, which are the main variables in the study, all others remain constant through experiments.
 
-A complete summary of the hyperparameter searches and their associated cost values can be found in table \ref{hyperparam-summary}.
+A complete summary of the hyperparameter searches and their associated cost values can be found in table \ref{tab:hyperparam-summary}.
 
 \begin{table}
 \begin{tabular}{llll}
 \hline\noalign{\smallskip}
 Noise type & Search parameter & Cost & Value \\
 \noalign{\smallskip}\hline\noalign{\smallskip}
-Base hyperparameters & DDPG + HER parameters & 50.6 & Table \ref{base-hyperparams} \\
+Base hyperparameters & DDPG + HER parameters & 50.6 & Table \ref{tab:base-hyperparams} \\
 Mutlivariate Gaussian & $\sigma_\alpha$, $\sigma_\beta$ & 60.2 & 0.025, 0.00065 \\
 Ornstein Uhlenbeck & $\sigma_\beta$ & 81.0 & 0.00021 \\
 Parameter noise & $\sigma$ & 41.2 & 0.24 \\
 \noalign{\smallskip}\hline
 \end{tabular}
 \caption{Hyperparameter search summary}
-\label{hyperparam-summary} 
+\label{tab:hyperparam-summary} 
 \end{table}
 
 \begin{table}
@@ -320,7 +306,7 @@ Actor and critic hidden layers & [128, 128, 128] \\
 \noalign{\smallskip}\hline
 \end{tabular}
 \caption{Base hyperparameters}
-\label{base-hyperparams} 
+\label{tab:base-hyperparams} 
 \end{table}
 
 \subsection{Computing Hardware}
@@ -328,45 +314,58 @@ For training, a server cluster with Intel Xeon Gold 6140 18C 140W 2.3GHz was use
 
 \section{Experiments and Results}
 \begin{figure}
-    \subfloat[2 tube]{{\includegraphics[width=6cm]{images/2-tube-learning.eps}}}
-    \subfloat[3 tube]{{\includegraphics[width=6cm]{images/3-tube-learning.eps}}}
-    
-    \subfloat[4 tube]{{\includegraphics[width=6cm]{images/4-tube-learning.eps}}}
+    \subfloat[2 tube]{{\includegraphics[width=0.33\linewidth]{images/2-tube-learning.eps}}}
+    \subfloat[3 tube]{{\includegraphics[width=0.33\linewidth]{images/3-tube-learning.eps}}}
+    \subfloat[4 tube]{{\includegraphics[width=0.33\linewidth]{images/4-tube-learning.eps}}}
     \caption{Success rate and evaluation error at training episodes. Solid lines are success rate and dashed lines are error. Red is type 1, blue type 2, green type 3 and black type 4.}
-    \label{fig:learning}
+    \label{fig:learning-curves}
 \end{figure}
 
 \begin{figure}
-    \subfloat[2 tube]{{\includegraphics[width=6cm]{images/2-tube-eval.eps}}}
-    \subfloat[3 tube]{{\includegraphics[width=6cm]{images/3-tube-eval.eps}}}
-    
-    \subfloat[4 tube]{{\includegraphics[width=6cm]{images/4-tube-eval.eps}}}
+    \subfloat[2 tube]{{\includegraphics[width=0.33\linewidth]{images/2-tube-eval.eps}}}
+    \subfloat[3 tube]{{\includegraphics[width=0.33\linewidth]{images/3-tube-eval.eps}}}
+    \subfloat[4 tube]{{\includegraphics[width=0.33\linewidth]{images/4-tube-eval.eps}}}
     \caption{Goal tolerance and resulting mean and standard deviation evaluation error. Red is type 1, blue type 2, green type 3 and black type 4.}
-    \label{fig:learning}
+    \label{fig:learning-eval}
 \end{figure}
 
-For each environment, there are four experiments for each noise type for a total of 12 experiments. The four experiments are the noise types, type 1: zero mean multivariate Gaussian noise with a single standard deviation, type 2: zero mean multivariate Gaussian noise with multiple standard deviations, type 3: Ornstein Uhlenbeck noise and type 4: parameter noise with the found noise type parameters in table \ref{tab:noise-summary}. Training is done over 2 million timesteps and the results are illustrated in figure \cite{fig:learning}, Type 1 performs the worst in every environment. It has the lowest success rate and highest evaluation error. This result is expected as having a single noise value for both extension and rotation will not explore the Cartesian space correctly. The output of the noise will almost always result in a full action extension or action retraction. Another result is type 2 converges the fastest and performing the best in evaluation. Separating noise for rotation and extension greatly improves overall training performance. The other types, type 3 and type 4, perform moderately in training evaluation converging to a high success rate and low errors nearing the end of 2 million steps. The last result is that the exploration types are scalable with number of tubes. With more tubes, the model convergence of all types improves. We deduce this could be for two reasons. The first is with more tubes, joint redundancy increases. A desired goal can have more that one joint solution, allowing for faster convergence with exploration. Secondly, because of the Cartesian sampling bias, full extension and retraction Cartesian points are sampled less, where redundant joint solutions are found less, making successful episodes more common.
+For each environment, there are four experiments for each noise type for a total of 12 experiments. The four experiments are the noise types, type 1: zero mean multivariate Gaussian noise with a single standard deviation, type 2: zero mean multivariate Gaussian noise with multiple standard deviations, type 3: Ornstein Uhlenbeck noise and type 4: parameter noise. The noise type parameters were found through a hyperparameter search detailed in the previous section and summarized in table \ref{tab:hyperparam-summary}. Training is done over 2 million timesteps and the results are illustrated in figure \ref{fig:learning-eval}. Type 1 performs the worst in every environment. It has the lowest success rate and highest evaluation error. This result is expected as having a single noise value for both extension and rotation joints will not explore the Cartesian space correctly. The output of the noise will almost always result in a full extension action or retraction action. This is shown in figure \ref{fig:two-tube-pcl} where type 1 and type 4 training points are plotted for a two tube environment. The color mapping indicates the Q-value or estimated cumulative reward during that training. In the type 1 point cloud, the Q value is uniform with changes in full extension and retraction, joint states visited quite often because of the coarse noise of type 1. This is confirmed with the sparse points on the edges of the workspace. In the type 2 point cloud, the Q values are mapped with high values in he centre of workspace and lower values at extension. This makes intuitive sense as in general, workspace edge points take more timesteps to achieve, resulting in lower rewards. The points on the edges of the workspace also dense, suggesting these areas are explored during training. Another result is type 2 converges the fastest and performing the best in evaluation. Separating noise for rotation and extension greatly improves overall training performance. The other types, type 3 and type 4, perform moderately in training evaluation converging to a high success rate and low errors nearing the end of 2 million steps. The last result is that the exploration types are scalable with number of tubes. With more tubes, the model convergence of all types improves. We deduce this could be for two reasons. The first is with more tubes, joint redundancy increases. A desired goal can have more that one joint solution, allowing for faster convergence with exploration. Secondly, because of the Cartesian sampling bias, full extension and retraction Cartesian points are sampled less, where redundant joint solutions fewer, making successful episodes more common.
+\begin{figure}
+    \subfloat[Type 1]{{\includegraphics[width=0.5\linewidth]{images/exp-1-q-values.eps}}}
+    \subfloat[Type 5]{{\includegraphics[width=0.5\linewidth]{images/exp-5-q-values.eps}}}
+    \caption{Two tube environment with parameter noise type and 0.6 mm goal tolerance.}
+    \label{fig:two-tube-pcl}
+\end{figure}
 
-During training, a set error tolerance of 1mm was set for all experiments. This limits the accuracy of the inverse kinematics, as once an error of just below 1mm is reached, the episode is terminated, even if the learned policy could move closer with a lower error threshold. To this end, we test lowering the goal tolerance and resulting error in evaluation. Each noise type learned model was evaluated over 5000 timesteps and the overall mean error and standard deviation of error was recorded and illustrated by figure \ref{fig:goal-tolerance}. From the plots, its clear that type 3 and type 4 noise perform better than type one and type two. The error decreases until the 0.1mm tolerance where an increase can be found in some cases. This represents a key trade-off. As the goal tolerance decreases, success rate and episode length increase. In other words, with lower tolerances more iterations are needed get to the desired goal. This is a parallel to traditional iterative Jacobian where if the do converge to a solution, further iteration can yield higher accuracy with the cost of computation time.
+During training, a set error tolerance of 1mm was set for all experiments. This limits the accuracy of the inverse kinematics, as once an error of just below 1mm is reached, the episode is terminated, even if the learned policy could move closer with a lower error threshold. To this end, we test lowering the goal tolerance and resulting error in evaluation. Each noise type learned model was evaluated over 5000 timesteps and the overall mean error and standard deviation of error was recorded and illustrated by figure \ref{fig:learning-eval}. From the plots, its clear that type 3 and type 4 noise perform better than type one and type two. The error decreases until the 0.1mm tolerance where an increase can be found in some cases. This represents a key trade-off. As the goal tolerance decreases, success rate and episode length increase. In other words, with lower tolerances more iterations are needed get to the desired goal. This is a parallel to traditional iterative Jacobian where if the do converge to a solution, further iteration can yield higher accuracy with the cost of computation time.
 
 One of the initial problems proposed in this work was exploration due to Cartesian sampling bias and the exploration-exploitation trade-off. To demonstrate performance of the noise types in extended states, the last test performed was to test trajectory following a square at extension where Cartesian sampling is low. The trajectory generator will output a point approximately at 100 Hz. The reinforcement learning controller receives this point and appends the desired goal in the state. While this update is occurring, the controller is iterating through episodes with the learned policy model. We plot the desired and achieved trajectories and errors for two, three and four tube with the best performing noise type, and goal tolerance for each.
 
 \begin{figure}
-    \subfloat[Trajectory]{{\includegraphics[width=6cm]{images/exp4-square-0-6.eps}}}
+    \subfloat[Trajectory]{{\includegraphics[width=0.5\linewidth]{images/exp4-square-0-6.eps}}}
     \subfloat[Error]{{\includegraphics[width=6cm]{images/exp4-square-0-6-error.eps}}}
     \caption{Two tube environment with parameter noise type and 0.6 mm goal tolerance.}
     \label{fig:two-tube-traj}
 \end{figure}
-
 \begin{figure}
-    \subfloat[Trajectory]{{\includegraphics[width=6cm]{images/exp14-square-0-3.eps}}}
-    \subfloat[Error]{{\includegraphics[width=6cm]{images/exp14-square-0-3-error.eps}}}
+    \subfloat[Trajectory]{{\includegraphics[width=0.5\linewidth]{images/exp10-square-0-4.eps}}}
+    \subfloat[Error]{{\includegraphics[width=0.5\linewidth]{images/exp10-square-0-4-error.eps}}}
     \caption{Two tube environment with parameter noise type and 0.6 mm goal tolerance.}
+    \label{fig:three-tube-traj}
+\end{figure}
+\begin{figure}
+    \subfloat[Trajectory]{{\includegraphics[width=0.5\linewidth]{images/exp14-square-0-3.eps}}}
+    \subfloat[Error]{{\includegraphics[width=0.5\linewidth]{images/exp14-square-0-3-error.eps}}}
+    \caption{Four tube environment with OU noise type and 0.3 mm goal tolerance.}
     \label{fig:four-tube-traj}
 \end{figure}
 
-\section{Conclusion}
 
+
+\section{Conclusion and Future Work}
+In this work, the different noise types used for model-free deep reinforcement learning were studied in the context of concentric tube robots. Sampling bias and joints with different units of actuation make exploration a challenge, an important factor in reinforcement learning convergence. A single standard deviation zero mean multivariate Gaussian noise process performed the worse, with low success rates and high error. A multi-standard deviation multivariate zero mean Gaussian noise process, where rotation and extension action standard deviation were separated in the co-variance matrix performed best during training. When the goal tolerance was changed, parameter noise was found to perform better in evaluation with smaller goal tolerances. Using the best noise type model and goal tolerance for each environment, a test to follow a square trajectory was done. Sampling high extension values is low, so high extension was chosen for the plane of the square. The results show an online trajectory controller using reinforcement learning for concentric tube robots can follow a square trajectory with less than 0.7mm for 2 tubes and less than 0.5mm for 4 tube.
+
+A large caveat is the use of the dominant stiffness model. Future work should use a torsionally compliant variable stiffness model and stability conditions for training using the parameter noise type. 
 %\begin{acknowledgements}
 %If you'd like to thank anyone, place your comments here
 %and remove the percent signs.
